@@ -239,5 +239,3 @@ function ListaPersonas() {
 }
 
 export default ListaPersonas;
-
-//el chabon se escribia la vida para react y node (?)
