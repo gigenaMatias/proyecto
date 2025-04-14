@@ -2,43 +2,52 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './styles/bootstrap.min.css';
 
+
+//componente general de Personas (agrega, edita, borra)
 function ListaPersonas() {
+
+  //declaracion de constantes para la actualizacion de formularios
   const [personas, setPersonas] = useState([]);
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [dni, setDni] = useState('');
   const [alerta, setAlerta] = useState({ tipo: '', mensaje: '' });
-
   const [mostrarModal, setMostrarModal] = useState(false);
   const [modalMensaje, setModalMensaje] = useState('');
   const [personaAEliminar, setPersonaAEliminar] = useState(null);
   const [personaAEditar, setPersonaAEditar] = useState(null);
   const [mostrarModalEdicion, setMostrarModalEdicion] = useState(false);
 
+  //Obtencion de la lista desde la BBDD
   const obtenerPersonas = () => {
     axios.get('http://localhost:3001/personas')
       .then(res => setPersonas(res.data))
       .catch(err => console.error(err));
   };
 
+  //Carga principal de lista, una vez cargado el index
   useEffect(() => {
     obtenerPersonas();
   }, []);
 
+  //Constante para modal, dependiendo de la accion
   const mostrarAlerta = (tipo, mensaje) => {
     setAlerta({ tipo, mensaje });
   };
 
+  //Mostrar Modal
   const mostrarModalMensaje = (mensaje) => {
     setModalMensaje(mensaje);
     setMostrarModal(true);
   };
 
+  //Iniciar proceso de edicion (cargar formulario con datos pre-existentes, luego mostrar modal para editar)
   const iniciarEdicion = (persona) => {
     setPersonaAEditar(persona);
     setMostrarModalEdicion(true);
   };
 
+  //Funcion para Guardar cambios de Personas
   const guardarCambios = () => {
     axios.put(`http://localhost:3001/personas/${personaAEditar.id}`, personaAEditar)
       .then(() => {
@@ -73,6 +82,7 @@ function ListaPersonas() {
     });
   };
 
+  //Mostrar Confirmacion de Eliminacion de Persona
   const confirmarEliminacion = (id) => {
     axios.delete(`http://localhost:3001/personas/${id}`)
       .then(() => {
@@ -87,6 +97,7 @@ function ListaPersonas() {
       });
   };
 
+  //Front de Agregar Persona, Editar, Borrar y Modales (Borrar, Editar, Agregar)
   return (
     <div className="container mt-5">
       <h2 className="mb-4">Agregar nueva persona</h2>
@@ -238,4 +249,5 @@ function ListaPersonas() {
   );
 }
 
+//exportacion de componentes
 export default ListaPersonas;
