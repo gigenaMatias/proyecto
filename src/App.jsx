@@ -12,6 +12,8 @@ function ListaPersonas() {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [modalMensaje, setModalMensaje] = useState('');
   const [personaAEliminar, setPersonaAEliminar] = useState(null);
+  const [personaAEditar, setPersonaAEditar] = useState(null);
+  const [mostrarModalEdicion, setMostrarModalEdicion] = useState(false);
 
   const obtenerPersonas = () => {
     axios.get('http://localhost:3001/personas')
@@ -30,6 +32,24 @@ function ListaPersonas() {
   const mostrarModalMensaje = (mensaje) => {
     setModalMensaje(mensaje);
     setMostrarModal(true);
+  };
+
+  const iniciarEdicion = (persona) => {
+    setPersonaAEditar(persona);
+    setMostrarModalEdicion(true);
+  };
+
+  const guardarCambios = () => {
+    axios.put(`http://localhost:3001/personas/${personaAEditar.id}`, personaAEditar)
+      .then(() => {
+        mostrarAlerta('success', '✅ Persona actualizada correctamente');
+        setMostrarModalEdicion(false);
+        obtenerPersonas();
+      })
+      .catch((err) => {
+        console.error('❌ Error al editar persona:', err);
+        mostrarAlerta('danger', '❌ No se pudo actualizar la persona');
+      });
   };
 
   const handleSubmit = (e) => {
@@ -85,6 +105,53 @@ function ListaPersonas() {
           ></button>
         </div>
       )}
+
+      {mostrarModalEdicion && personaAEditar && (
+        <div className="modal fade show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Editar persona</h5>
+                <button type="button" className="btn-close" onClick={() => setMostrarModalEdicion(false)}></button>
+              </div>
+              <div className="modal-body">
+                <div className="mb-3">
+                  <label className="form-label">Nombre</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={personaAEditar.nombre}
+                    onChange={(e) => setPersonaAEditar({ ...personaAEditar, nombre: e.target.value })}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Apellido</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={personaAEditar.apellido}
+                    onChange={(e) => setPersonaAEditar({ ...personaAEditar, apellido: e.target.value })}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">DNI</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={personaAEditar.dni}
+                    onChange={(e) => setPersonaAEditar({ ...personaAEditar, dni: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setMostrarModalEdicion(false)}>Cancelar</button>
+                <button className="btn btn-primary" onClick={guardarCambios}>💾 Guardar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {mostrarModal && (
         <div className="modal fade show d-block" tabIndex="-1" role="dialog" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
@@ -158,16 +225,12 @@ function ListaPersonas() {
             <span>
               <strong>{p.nombre} {p.apellido}</strong> - DNI: {p.dni}
             </span>
-            <button
-              className="btn btn-danger btn-sm"
-              onClick={() => {
+            <button className="btn btn-warning btn-sm me-2" onClick={() => iniciarEdicion(p)}>✏️ Editar</button>
+            <button className="btn btn-danger btn-sm" onClick={() => {
                 setPersonaAEliminar(p.id);
                 setModalMensaje('¿Estás seguro de que querés eliminar esta persona?');
                 setMostrarModal(true);
-              }}
-            >
-              🗑️ Eliminar
-            </button>
+              }}> 🗑️ Eliminar</button>
           </li>
         ))}
       </ul>
